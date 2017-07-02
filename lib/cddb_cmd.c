@@ -664,8 +664,9 @@ int cddb_parse_record(cddb_conn_t *c, cddb_disc_t *disc)
                     disc->revision = cddb_regex_get_int(line, matches, 1);
                     /* expect disc title now */
                     state = STATE_DISC_TITLE;
+                    break;
                 }            
-                break;
+                /* fall through because revision # is implied to be optional */
             case STATE_DISC_TITLE:
                 cddb_log_debug("...state: DISC TITLE");
                 if (regexec(REGEX_DISC_TITLE, line, 5, matches, 0) == 0) {
@@ -905,12 +906,22 @@ int cddb_parse_record(cddb_conn_t *c, cddb_disc_t *disc)
 
 int cddb_read(cddb_conn_t *c, cddb_disc_t *disc)
 {
-    char *msg;
+    char *msg, genre;
     int code, rc;
 
     cddb_log_debug("cddb_read()");
+
+    /* The genre won't be set if we are reading from cache,
+       so use category instead. */
+    genre = disc->genre;
+    if (genre == NULL) {
+        cddb_log_debug("Using category instead of genre");
+        genre = CDDB_CATEGORY[disc->category];
+    }
+
     /* check whether we have enough info to execute the command */
-    if ((disc->category == CDDB_CAT_INVALID) || (disc->discid == 0)) {
+    if ((disc->genre == NULL && disc->category == CDDB_CAT_INVALID) || 
+       (disc->discid == 0)) {
         cddb_errno_log_error(c, CDDB_ERR_DATA_MISSING);
         return FALSE;
     }
@@ -930,7 +941,7 @@ int cddb_read(cddb_conn_t *c, cddb_disc_t *disc)
     }
 
     /* send read command and check response */
-    if (!cddb_send_cmd(c, CMD_READ, CDDB_CATEGORY[disc->category], disc->discid)) {
+    if (!cddb_send_cmd(c, CMD_READ, genre, disc->discid)) {
         return FALSE;
     }
     switch (code = cddb_get_response_code(c, &msg)) {
@@ -1493,7 +1504,7 @@ int cddb_write(cddb_conn_t *c, cddb_disc_t *disc)
     }
 
     /* send query command and check response */
-    if (!cddb_send_cmd(c, CMD_WRITE, CDDB_CATEGORY[disc->category], disc->discid, size)) {
+    if (!cddb_send_cmd(c, CMD_WRITE, disc->genre, disc->discid, size)) {
         return FALSE;
     }
     if (!c->is_http_enabled) {

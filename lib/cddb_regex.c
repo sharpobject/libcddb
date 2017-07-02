@@ -80,7 +80,7 @@ void cddb_regex_init()
     rv = cddb_regex_init_1(&REGEX_PLAY_ORDER,
                            "^PLAYORDER=(.*)$");
     rv = cddb_regex_init_1(&REGEX_QUERY_MATCH,
-                           "^([[:alpha:]]+)[[:blank:]]([[:xdigit:]]+)[[:blank:]]((.*) / (.*)|(.*))$");
+                           "^([A-Za-z0-9_]+)[[:blank:]]([[:xdigit:]]+)[[:blank:]]((.*) / (.*)|(.*))$");
 
 	/* example: freedb.freedb.org cddbp 8880 - N000.00 W000.00 Random freedb server */
     /*          <server> <proto> <port> <query-url> <latitude> <longitude> <description> */
