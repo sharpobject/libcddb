@@ -19,7 +19,7 @@
     Boston, MA  02111-1307, USA.
 */
 
-#ifndef CDDB_LOH_H
+#ifndef CDDB_LOG_H
 #define CDDB_LOG_H
 
 #ifdef __cplusplus

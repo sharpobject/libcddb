@@ -906,7 +906,8 @@ int cddb_parse_record(cddb_conn_t *c, cddb_disc_t *disc)
 
 int cddb_read(cddb_conn_t *c, cddb_disc_t *disc)
 {
-    char *msg, *genre;
+    char *msg;
+    const char *genre;
     int code, rc;
 
     cddb_log_debug("cddb_read()");
@@ -1439,7 +1440,8 @@ int cddb_write_data(cddb_conn_t *c, char *buf, int size, cddb_disc_t *disc)
 
 int cddb_write(cddb_conn_t *c, cddb_disc_t *disc)
 {
-    char *msg, *genre;
+    char *msg;
+    const char *genre;
     int code, size;
     cddb_track_t *track;
     char buf[WRITE_BUF_SIZE];
