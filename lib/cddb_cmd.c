@@ -906,7 +906,7 @@ int cddb_parse_record(cddb_conn_t *c, cddb_disc_t *disc)
 
 int cddb_read(cddb_conn_t *c, cddb_disc_t *disc)
 {
-    char *msg, genre;
+    char *msg, *genre;
     int code, rc;
 
     cddb_log_debug("cddb_read()");
@@ -914,7 +914,7 @@ int cddb_read(cddb_conn_t *c, cddb_disc_t *disc)
     /* The genre won't be set if we are reading from cache,
        so use category instead. */
     genre = disc->genre;
-    if (genre == NULL) {
+    if (genre == NULL || *genre == '\0') {
         cddb_log_debug("Using category instead of genre");
         genre = CDDB_CATEGORY[disc->category];
     }
@@ -1439,7 +1439,7 @@ int cddb_write_data(cddb_conn_t *c, char *buf, int size, cddb_disc_t *disc)
 
 int cddb_write(cddb_conn_t *c, cddb_disc_t *disc)
 {
-    char *msg;
+    char *msg, *genre;
     int code, size;
     cddb_track_t *track;
     char buf[WRITE_BUF_SIZE];
@@ -1503,8 +1503,14 @@ int cddb_write(cddb_conn_t *c, cddb_disc_t *disc)
         return FALSE;
     }
 
+    genre = disc->genre;
+    if (genre == NULL || *genre == '\0') {
+        cddb_log_debug("Using category instead of genre");
+        genre = CDDB_CATEGORY[disc->category];
+    }
+
     /* send query command and check response */
-    if (!cddb_send_cmd(c, CMD_WRITE, disc->genre, disc->discid, size)) {
+    if (!cddb_send_cmd(c, CMD_WRITE, genre, disc->discid, size)) {
         return FALSE;
     }
     if (!c->is_http_enabled) {
